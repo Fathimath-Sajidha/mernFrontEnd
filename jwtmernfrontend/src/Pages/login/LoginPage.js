@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Form, Container, Card } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const LoginPage = () => {
   const [loginData, setLoginData] = useState({ email: '', password: '' });
@@ -32,22 +33,24 @@ const LoginPage = () => {
     return formErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-
-    const formErrors = validateForm();
-    setErrors(formErrors); // Set errors if validation fails
-
-    // If there are no validation errors, proceed with form submission
-    if (Object.keys(formErrors).length === 0) {
-      // Assuming successful login
-      console.log('Login successful', loginData);
-      navigate('/home');
-    }
+  
+    try {
+        const response = await axios.post("http://localhost:5000/user/login", loginData);
+        localStorage.setItem("token", response.data.token);
+        console.log("Login successful:", response.data);
+        navigate("/home");
+      } catch (error) {
+        console.error("Login Error:", error.response?.data?.message || error.message);
+        alert(error.response?.data?.message || "An error occurred");
+      }
+      
   };
+  
 
   const navigateToSignUp = () => {
-    navigate('/signup'); // Navigate to the signup page
+    navigate('/signup'); 
   };
 
   return (
@@ -55,7 +58,7 @@ const LoginPage = () => {
       <Card>
         <Card.Body>
           <h2 className="text-center mb-4">Login</h2>
-          <Form onSubmit={handleSubmit}>
+          <Form onSubmit={handleLogin}>
             <Form.Group className="mb-3" controlId="formEmail">
               <Form.Label>Email</Form.Label>
               <Form.Control

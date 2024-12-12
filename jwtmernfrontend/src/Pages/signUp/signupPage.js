@@ -45,33 +45,28 @@ const SignUpPage = () => {
 
 
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+  
+    const formErrors = validateForm();
+    setErrors(formErrors); // Set errors if validation fails
+  
+    if (Object.keys(formErrors).length === 0) {
+      try {
+        const response = await axios.post('http://localhost:5000/user/signup', signupData);
 
-  const formErrors = validateForm();
-  setErrors(formErrors); // Set errors if validation fails
-
-  if (Object.keys(formErrors).length === 0) {
-    try {
-      // Use axios.post to send the signup data
-      const response = await axios.post("http://localhost:5000/user/signup", signupData);
-      
-      console.log("Server Response:", response.data);
-      
-      // Clear the form after a successful signup
-      setSignupData({
-        name: "",
-        email: "",
-        password: "",
-      });
-
-      // Navigate to the login page
-      navigate("/login");
-    } catch (error) {
-      console.error("Signup Error:", error.response?.data?.message || error.message);
+    
+        localStorage.setItem("token", response.data.token);
+  
+        console.log("Signup successful:", response.data);
+        navigate("/login"); 
+      } catch (error) {
+        console.error("Signup Error:", error.response?.data?.message || error.message);
+      }
     }
-  }
-};
+  };
+  
+  
 
 
   return (
@@ -120,8 +115,9 @@ const handleSubmit = async (e) => {
             </Form.Group>
 
             <Button variant="primary" type="submit" block>
-              Sign Up
-            </Button>
+  Sign Up
+</Button>
+
           </Form>
         </Col>
       </Row>
